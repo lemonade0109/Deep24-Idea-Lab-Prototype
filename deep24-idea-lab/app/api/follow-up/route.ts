@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
-
-type HistoryItem = {
-  question: string;
-  answer: string;
-};
-
-type FollowUp = {
-  question: string;
-  options: string[];
-  helper: string;
-  readyForSpec?: boolean;
-};
+import { HistoryItem, FollowUp } from "../../../types";
 
 function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
-  const normalized = `${idea} ${history.map((item) => item.answer).join(" ")}`.toLowerCase();
+  const normalized =
+    `${idea} ${history.map((item) => item.answer).join(" ")}`.toLowerCase();
   const step = history.length;
 
   if (step >= 3) {
@@ -25,21 +15,43 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
     };
   }
 
-  if (/watch|shop|store|business|customer|order|inventory|sell/.test(normalized)) {
+  if (
+    /watch|shop|store|business|customer|order|inventory|sell/.test(normalized)
+  ) {
     const businessQuestions: FollowUp[] = [
       {
-        question: "What part of running your business do you most want this app to help with?",
-        options: ["Keeping track of stock", "Managing customer orders", "Tracking payments", "Keeping customer information", "Something else"],
+        question:
+          "What part of running your business do you most want this app to help with?",
+        options: [
+          "Keeping track of stock",
+          "Managing customer orders",
+          "Tracking payments",
+          "Keeping customer information",
+          "Something else",
+        ],
         helper: "Pick the biggest pain point first. We can add the rest later.",
       },
       {
         question: "How do customers usually place their orders?",
-        options: ["WhatsApp", "Instagram", "Website", "Physical store", "A mix of these"],
-        helper: "This helps us understand where the app needs to fit into your current workflow.",
+        options: [
+          "WhatsApp",
+          "Instagram",
+          "Website",
+          "Physical store",
+          "A mix of these",
+        ],
+        helper:
+          "This helps us understand where the app needs to fit into your current workflow.",
       },
       {
         question: "What should happen after an order is recorded?",
-        options: ["Update stock automatically", "Track payment status", "Save customer details", "Show it on a sales dashboard", "All of these"],
+        options: [
+          "Update stock automatically",
+          "Track payment status",
+          "Save customer details",
+          "Show it on a sales dashboard",
+          "All of these",
+        ],
         helper: "Choose the outcome that would save you the most work.",
       },
     ];
@@ -50,18 +62,37 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
     const studyQuestions: FollowUp[] = [
       {
         question: "What should the app help you do when you study?",
-        options: ["Remember information", "Practice with quizzes", "Organize my notes", "Plan study sessions", "Something else"],
+        options: [
+          "Remember information",
+          "Practice with quizzes",
+          "Organize my notes",
+          "Plan study sessions",
+          "Something else",
+        ],
         helper: "Choose the outcome that matters most to you.",
       },
       {
         question: "Where would your study material usually come from?",
-        options: ["PDFs", "Typed notes", "Web links", "Photos of notes", "A mix of these"],
+        options: [
+          "PDFs",
+          "Typed notes",
+          "Web links",
+          "Photos of notes",
+          "A mix of these",
+        ],
         helper: "This tells us what the app needs to accept as input.",
       },
       {
         question: "How would you like the app to show your progress?",
-        options: ["Quiz scores", "Topics completed", "Study streak", "Weak areas", "All of these"],
-        helper: "Pick the feedback that would keep you most useful and motivated.",
+        options: [
+          "Quiz scores",
+          "Topics completed",
+          "Study streak",
+          "Weak areas",
+          "All of these",
+        ],
+        helper:
+          "Pick the feedback that would keep you most useful and motivated.",
       },
     ];
     return studyQuestions[Math.min(step, studyQuestions.length - 1)];
@@ -71,18 +102,37 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
     const fitnessQuestions: FollowUp[] = [
       {
         question: "What would make this fitness app most useful to you?",
-        options: ["Create workout plans", "Track workouts", "Measure progress", "Keep me consistent", "Something else"],
+        options: [
+          "Create workout plans",
+          "Track workouts",
+          "Measure progress",
+          "Keep me consistent",
+          "Something else",
+        ],
         helper: "Start with the job you want the app to do best.",
       },
       {
         question: "What kind of information should the app remember about you?",
-        options: ["Workout history", "Weights and reps", "Goals", "Body measurements", "All of these"],
+        options: [
+          "Workout history",
+          "Weights and reps",
+          "Goals",
+          "Body measurements",
+          "All of these",
+        ],
         helper: "This helps define what the app should track over time.",
       },
       {
         question: "What should the app do after each workout?",
-        options: ["Show progress", "Suggest the next workout", "Celebrate milestones", "Adjust the plan", "All of these"],
-        helper: "Choose the follow-up that would make the app feel most useful.",
+        options: [
+          "Show progress",
+          "Suggest the next workout",
+          "Celebrate milestones",
+          "Adjust the plan",
+          "All of these",
+        ],
+        helper:
+          "Choose the follow-up that would make the app feel most useful.",
       },
     ];
     return fitnessQuestions[Math.min(step, fitnessQuestions.length - 1)];
@@ -91,17 +141,38 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
   const genericQuestions: FollowUp[] = [
     {
       question: "What is the main problem you want this app to solve for you?",
-      options: ["Save me time", "Help me stay organized", "Track something important", "Automate a repetitive task", "Something else"],
-      helper: "Choose the closest answer. The next question can get more specific.",
+      options: [
+        "Save me time",
+        "Help me stay organized",
+        "Track something important",
+        "Automate a repetitive task",
+        "Something else",
+      ],
+      helper:
+        "Choose the closest answer. The next question can get more specific.",
     },
     {
       question: "Who would use this app most often?",
-      options: ["Just me", "Customers", "A small team", "Students or learners", "Other people"],
-      helper: "Knowing the main user helps us decide what the experience should prioritize.",
+      options: [
+        "Just me",
+        "Customers",
+        "A small team",
+        "Students or learners",
+        "Other people",
+      ],
+      helper:
+        "Knowing the main user helps us decide what the experience should prioritize.",
     },
     {
-      question: "What is the most important thing a user should be able to do inside the app?",
-      options: ["Create something", "Track something", "Find information", "Get recommendations", "Manage a workflow"],
+      question:
+        "What is the most important thing a user should be able to do inside the app?",
+      options: [
+        "Create something",
+        "Track something",
+        "Find information",
+        "Get recommendations",
+        "Manage a workflow",
+      ],
       helper: "Pick the single action that would make the app worth using.",
     },
   ];
@@ -111,14 +182,23 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
 
 function extractJson(text: string): FollowUp | null {
   try {
-    const cleaned = text.replace(/^```json\s*/i, "").replace(/\s*```$/i, "").trim();
+    const cleaned = text
+      .replace(/^```json\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
     const parsed = JSON.parse(cleaned) as Partial<FollowUp>;
 
     if (parsed.readyForSpec === true) {
       return {
-        question: typeof parsed.question === "string" ? parsed.question : "I have enough to shape your app idea.",
+        question:
+          typeof parsed.question === "string"
+            ? parsed.question
+            : "I have enough to shape your app idea.",
         options: [],
-        helper: typeof parsed.helper === "string" ? parsed.helper : "Next, we'll turn your answers into a clear app plan.",
+        helper:
+          typeof parsed.helper === "string"
+            ? parsed.helper
+            : "Next, we'll turn your answers into a clear app plan.",
         readyForSpec: true,
       };
     }
@@ -132,7 +212,10 @@ function extractJson(text: string): FollowUp | null {
       return {
         question: parsed.question,
         options: parsed.options.slice(0, 5),
-        helper: typeof parsed.helper === "string" ? parsed.helper : "Choose the answer that best matches what you have in mind.",
+        helper:
+          typeof parsed.helper === "string"
+            ? parsed.helper
+            : "Choose the answer that best matches what you have in mind.",
         readyForSpec: false,
       };
     }
@@ -157,7 +240,10 @@ export async function POST(request: Request) {
     : [];
 
   if (!idea || idea.length > 500) {
-    return NextResponse.json({ error: "A valid idea is required." }, { status: 400 });
+    return NextResponse.json(
+      { error: "A valid idea is required." },
+      { status: 400 },
+    );
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -169,7 +255,12 @@ export async function POST(request: Request) {
   try {
     const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
     const conversation = history.length
-      ? history.map((item, index) => `Q${index + 1}: ${item.question}\nA${index + 1}: ${item.answer}`).join("\n\n")
+      ? history
+          .map(
+            (item, index) =>
+              `Q${index + 1}: ${item.question}\nA${index + 1}: ${item.answer}`,
+          )
+          .join("\n\n")
       : "No follow-up questions have been answered yet.";
 
     const response = await fetch(
@@ -217,7 +308,10 @@ export async function POST(request: Request) {
       }>;
     };
 
-    const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
+    const text =
+      data.candidates?.[0]?.content?.parts
+        ?.map((part) => part.text ?? "")
+        .join("") ?? "";
     const generated = extractJson(text);
     return NextResponse.json(generated ?? fallbackQuestion(idea, history));
   } catch {

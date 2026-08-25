@@ -15,3 +15,10 @@ export type BuildSpec = {
   acceptanceCriteria: string[];
   agentPrompt: string;
 };
+
+export type FollowUp = {
+  question: string;
+  options: string[];
+  helper: string;
+  readyForSpec?: boolean;
+};
