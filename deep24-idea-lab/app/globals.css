@@ -529,3 +529,27 @@ textarea:focus {
 .secondary-button:disabled { opacity: .45; }
 .centered-note { text-align: center; }
 @media (max-width: 640px) { .spec-meta-grid, .spec-actions { grid-template-columns: 1fr; } .spec-continue { margin-top: 0; } }
+
+.handoff-status { display:flex; gap:14px; align-items:flex-start; margin-top:28px; padding:18px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.66); }
+.ready-dot { display:grid; place-items:center; flex:0 0 auto; width:32px; height:32px; border-radius:10px; background:var(--ink); color:white; font-weight:800; }
+.handoff-status strong { font-size:14px; }
+.handoff-status p { margin:5px 0 0; color:var(--muted); line-height:1.5; font-size:13px; }
+.entity-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.entity-card { padding:15px 16px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.58); }
+.entity-card strong { font-size:13px; }
+.entity-card p { margin:7px 0 0; color:var(--muted); font-size:12px; line-height:1.5; }
+.screen-detail-list { display:grid; gap:9px; }
+.screen-detail { padding:15px 16px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.58); }
+.screen-detail strong { font-size:13px; }
+.screen-detail p { margin:6px 0; color:var(--muted); font-size:13px; line-height:1.45; }
+.screen-detail small { color:#8b887f; font-size:11px; line-height:1.5; }
+.criteria-list { overflow:hidden; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.58); }
+.criteria-list > div { display:flex; gap:11px; align-items:flex-start; padding:13px 15px; border-bottom:1px solid var(--line); }
+.criteria-list > div:last-child { border-bottom:0; }
+.criteria-list span { font-size:12px; font-weight:900; }
+.criteria-list p { margin:0; font-size:13px; line-height:1.45; }
+.agent-prompt-card { margin-top:28px; padding:18px; border:1px solid rgba(17,17,15,.22); border-radius:16px; background:#fff; }
+.agent-prompt-card p { margin:10px 0 0; color:#4d4b45; font-size:13px; line-height:1.65; white-space:pre-wrap; }
+.final-actions { display:grid; grid-template-columns:1fr 2fr; gap:10px; margin-top:22px; }
+.final-actions .continue-button { margin-top:0; }
+@media (max-width:640px) { .entity-grid,.final-actions { grid-template-columns:1fr; } }

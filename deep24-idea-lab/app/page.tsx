@@ -23,6 +23,15 @@ type AppSpec = {
   screens: string[];
 };
 
+type BuildSpec = {
+  productSummary: string;
+  userStories: string[];
+  dataEntities: { name: string; fields: string[] }[];
+  screenDetails: { name: string; purpose: string; actions: string[] }[];
+  acceptanceCriteria: string[];
+  agentPrompt: string;
+};
+
 const examples = [
   "I want an app to help me study.",
   "I need something to track customer orders.",
@@ -39,6 +48,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [spec, setSpec] = useState<AppSpec | null>(null);
+  const [buildSpec, setBuildSpec] = useState<BuildSpec | null>(null);
 
   async function getNextQuestion(currentIdea: string, currentHistory: HistoryItem[]) {
     const response = await fetch("/api/follow-up", {
@@ -115,6 +125,25 @@ export default function Home() {
     }
   }
 
+  async function createBuildSpec() {
+    if (!spec || isLoading) return;
+    setError("");
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/build-spec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea: submittedIdea, history, plan: spec }),
+      });
+      if (!response.ok) throw new Error("Could not create build specification.");
+      setBuildSpec((await response.json()) as BuildSpec);
+    } catch {
+      setError("We couldn't create the build specification just yet. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   function goBack() {
     setFollowUp(null);
     setHistory([]);
@@ -122,6 +151,31 @@ export default function Home() {
     setCustomAnswer("");
     setError("");
     setSpec(null);
+    setBuildSpec(null);
+  }
+
+  if (buildSpec && spec) {
+    return (
+      <main className="page-shell">
+        <section className="hero build-spec-screen" aria-labelledby="build-spec-title">
+          <div className="brand-row compact-brand"><span className="brand-mark" aria-hidden="true">D24</span><span className="brand-name">Deep24 Idea Lab</span></div>
+          <button className="back-button" type="button" onClick={() => setBuildSpec(null)}>← Back to app plan</button>
+          <div className="spec-heading">
+            <p className="eyebrow">CODING-AGENT-READY SPECIFICATION</p>
+            <h1 id="build-spec-title" className="spec-name">{spec.name}</h1>
+            <p className="spec-tagline">Your idea has been translated into a structured handoff a coding agent can build from.</p>
+          </div>
+          <div className="handoff-status"><span className="ready-dot">✓</span><div><strong>Ready for agent handoff</strong><p>{buildSpec.productSummary}</p></div></div>
+          <div className="spec-section"><div className="spec-section-title"><span>User stories</span></div><div className="feature-list">{buildSpec.userStories.map((story, i) => <div className="feature-item" key={story}><span>{String(i+1).padStart(2,"0")}</span><p>{story}</p></div>)}</div></div>
+          <div className="spec-section"><div className="spec-section-title"><span>Data model</span></div><div className="entity-grid">{buildSpec.dataEntities.map(entity => <div className="entity-card" key={entity.name}><strong>{entity.name}</strong><p>{entity.fields.join(" · ")}</p></div>)}</div></div>
+          <div className="spec-section"><div className="spec-section-title"><span>Screen requirements</span></div><div className="screen-detail-list">{buildSpec.screenDetails.map(screen => <div className="screen-detail" key={screen.name}><strong>{screen.name}</strong><p>{screen.purpose}</p><small>{screen.actions.join(" · ")}</small></div>)}</div></div>
+          <div className="spec-section"><div className="spec-section-title"><span>Definition of done</span></div><div className="criteria-list">{buildSpec.acceptanceCriteria.map(item => <div key={item}><span>✓</span><p>{item}</p></div>)}</div></div>
+          <div className="agent-prompt-card"><div className="spec-section-title"><span>Agent handoff prompt</span><small>Ready to copy</small></div><p>{buildSpec.agentPrompt}</p></div>
+          <div className="final-actions"><button className="secondary-button" type="button" onClick={createBuildSpec} disabled={isLoading}>{isLoading ? "Regenerating..." : "Regenerate spec"}</button><button className="continue-button spec-continue" type="button" onClick={() => navigator.clipboard?.writeText(buildSpec.agentPrompt)}>Copy agent prompt</button></div>
+          {error ? <p className="error-message" role="alert">{error}</p> : null}
+        </section>
+      </main>
+    );
   }
 
   if (spec) {
@@ -152,9 +206,9 @@ export default function Home() {
           </div>
           <div className="spec-actions">
             <button className="secondary-button" type="button" onClick={createAppPlan} disabled={isLoading}>{isLoading ? "Rethinking..." : "Regenerate"}</button>
-            <button className="continue-button spec-continue" type="button" disabled>Looks good →</button>
+            <button className="continue-button spec-continue" type="button" onClick={createBuildSpec} disabled={isLoading}>{isLoading ? "Preparing handoff..." : "Looks good →"}</button>
           </div>
-          <p className="next-screen-note centered-note">Screen 5 will turn the approved plan into a coding-agent-ready build specification.</p>
+          <p className="next-screen-note centered-note">Approve this plan to generate the final coding-agent handoff.</p>
           {error ? <p className="error-message" role="alert">{error}</p> : null}
         </section>
       </main>
