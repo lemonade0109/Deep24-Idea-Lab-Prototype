@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { AppPlan, BuildSpec, HistoryItem } from "../../..";
+import { AppPlan, BuildSpec, HistoryItem } from "../../../types";
 
 function fallback(plan: AppPlan): BuildSpec {
   const entities = [
