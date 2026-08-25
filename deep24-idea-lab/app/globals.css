@@ -505,3 +505,27 @@ textarea:focus {
   color: var(--muted);
   font-size: 12px;
 }
+
+.spec-heading { margin-top: 34px; }
+.spec-name { font-size: clamp(42px, 7vw, 64px); }
+.spec-tagline { margin: 14px 0 0; max-width: 600px; color: var(--muted); font-size: 18px; line-height: 1.5; }
+.spec-meta-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; margin-top: 30px; }
+.spec-card { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.58); }
+.spec-card span, .spec-section-title span { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.spec-card p { margin: 8px 0 0; color: var(--muted); line-height: 1.55; font-size: 14px; }
+.spec-section { margin-top: 28px; }
+.spec-section-title { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; }
+.spec-section-title small { color: var(--muted); font-size: 11px; }
+.feature-list { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.58); }
+.feature-item { display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.feature-item:last-child { border-bottom: 0; }
+.feature-item span { color: var(--muted); font-size: 11px; font-weight: 800; }
+.feature-item p { margin: 0; font-size: 14px; font-weight: 650; }
+.screen-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.screen-chips span { padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.66); font-size: 12px; font-weight: 700; }
+.spec-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 32px; }
+.spec-continue { margin-top: 0; }
+.secondary-button { padding: 16px 18px; border: 1px solid var(--line); border-radius: 16px; background: white; color: var(--ink); font-weight: 750; }
+.secondary-button:disabled { opacity: .45; }
+.centered-note { text-align: center; }
+@media (max-width: 640px) { .spec-meta-grid, .spec-actions { grid-template-columns: 1fr; } .spec-continue { margin-top: 0; } }

@@ -14,6 +14,15 @@ type HistoryItem = {
   answer: string;
 };
 
+type AppSpec = {
+  name: string;
+  tagline: string;
+  purpose: string;
+  targetUser: string;
+  features: string[];
+  screens: string[];
+};
+
 const examples = [
   "I want an app to help me study.",
   "I need something to track customer orders.",
@@ -29,6 +38,7 @@ export default function Home() {
   const [customAnswer, setCustomAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [spec, setSpec] = useState<AppSpec | null>(null);
 
   async function getNextQuestion(currentIdea: string, currentHistory: HistoryItem[]) {
     const response = await fetch("/api/follow-up", {
@@ -86,12 +96,69 @@ export default function Home() {
     }
   }
 
+  async function createAppPlan() {
+    if (isLoading) return;
+    setError("");
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/spec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea: submittedIdea, history }),
+      });
+      if (!response.ok) throw new Error("Could not create app plan.");
+      setSpec((await response.json()) as AppSpec);
+    } catch {
+      setError("We couldn't create your app plan just yet. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   function goBack() {
     setFollowUp(null);
     setHistory([]);
     setSelectedOption("");
     setCustomAnswer("");
     setError("");
+    setSpec(null);
+  }
+
+  if (spec) {
+    return (
+      <main className="page-shell">
+        <section className="hero spec-screen" aria-labelledby="spec-title">
+          <div className="brand-row compact-brand">
+            <span className="brand-mark" aria-hidden="true">D24</span>
+            <span className="brand-name">Deep24 Idea Lab</span>
+          </div>
+          <button className="back-button" type="button" onClick={() => setSpec(null)}>← Back to answers</button>
+          <div className="spec-heading">
+            <p className="eyebrow">HERE'S WHAT I THINK YOU NEED</p>
+            <h1 id="spec-title" className="spec-name">{spec.name}</h1>
+            <p className="spec-tagline">{spec.tagline}</p>
+          </div>
+          <div className="spec-meta-grid">
+            <div className="spec-card"><span>Purpose</span><p>{spec.purpose}</p></div>
+            <div className="spec-card"><span>Built for</span><p>{spec.targetUser}</p></div>
+          </div>
+          <div className="spec-section">
+            <div className="spec-section-title"><span>What your app will do</span><small>{spec.features.length} core features</small></div>
+            <div className="feature-list">{spec.features.map((feature, index) => <div className="feature-item" key={feature}><span>{String(index + 1).padStart(2, "0")}</span><p>{feature}</p></div>)}</div>
+          </div>
+          <div className="spec-section">
+            <div className="spec-section-title"><span>Suggested screens</span></div>
+            <div className="screen-chips">{spec.screens.map((screen) => <span key={screen}>{screen}</span>)}</div>
+          </div>
+          <div className="spec-actions">
+            <button className="secondary-button" type="button" onClick={createAppPlan} disabled={isLoading}>{isLoading ? "Rethinking..." : "Regenerate"}</button>
+            <button className="continue-button spec-continue" type="button" disabled>Looks good →</button>
+          </div>
+          <p className="next-screen-note centered-note">Screen 5 will turn the approved plan into a coding-agent-ready build specification.</p>
+          {error ? <p className="error-message" role="alert">{error}</p> : null}
+        </section>
+      </main>
+    );
   }
 
   if (followUp) {
@@ -132,8 +199,8 @@ export default function Home() {
               <p className="eyebrow">ENOUGH TO MOVE FORWARD</p>
               <h1 id="question-title" className="question-title">{followUp.question}</h1>
               <p className="subtitle question-helper">{followUp.helper}</p>
-              <button className="continue-button" type="button" disabled>
-                Create app plan →
+              <button className="continue-button" type="button" onClick={createAppPlan} disabled={isLoading}>
+                {isLoading ? "Creating your app plan..." : "Create app plan →"}
               </button>
               <p className="next-screen-note">Screen 4 will turn this conversation into the final build specification.</p>
             </div>

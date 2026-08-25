@@ -1,1 +1,0 @@
-# Deep24-Idea-Lab-Prototype
