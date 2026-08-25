@@ -22,3 +22,12 @@ export type FollowUp = {
   helper: string;
   readyForSpec?: boolean;
 };
+
+export type AppSpec = {
+  name: string;
+  tagline: string;
+  purpose: string;
+  targetUser: string;
+  features: string[];
+  screens: string[];
+};
