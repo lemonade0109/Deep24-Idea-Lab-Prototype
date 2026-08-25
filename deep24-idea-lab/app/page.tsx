@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import React from "react";
 
 type FollowUp = {
   question: string;
@@ -15,14 +15,14 @@ const examples = [
 ];
 
 export default function Home() {
-  const [idea, setIdea] = useState("");
-  const [submittedIdea, setSubmittedIdea] = useState("");
-  const [followUp, setFollowUp] = useState<FollowUp | null>(null);
-  const [selectedOption, setSelectedOption] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [idea, setIdea] = React.useState("");
+  const [submittedIdea, setSubmittedIdea] = React.useState("");
+  const [followUp, setFollowUp] = React.useState<FollowUp | null>(null);
+  const [selectedOption, setSelectedOption] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedIdea = idea.trim();
     if (!trimmedIdea || isLoading) return;
@@ -60,9 +60,14 @@ export default function Home() {
   if (followUp) {
     return (
       <main className="page-shell">
-        <section className="hero question-screen" aria-labelledby="question-title">
+        <section
+          className="hero question-screen"
+          aria-labelledby="question-title"
+        >
           <div className="brand-row compact-brand">
-            <span className="brand-mark" aria-hidden="true">D24</span>
+            <span className="brand-mark" aria-hidden="true">
+              D24
+            </span>
             <span className="brand-name">Deep24 Idea Lab</span>
           </div>
 
@@ -77,13 +82,20 @@ export default function Home() {
 
           <div className="question-copy">
             <p className="eyebrow">LET'S MAKE IT CLEARER</p>
-            <h1 id="question-title" className="question-title">{followUp.question}</h1>
+            <h1 id="question-title" className="question-title">
+              {followUp.question}
+            </h1>
             <p className="subtitle question-helper">
-              {followUp.helper ?? "Choose the answer that best matches what you have in mind."}
+              {followUp.helper ??
+                "Choose the answer that best matches what you have in mind."}
             </p>
           </div>
 
-          <div className="option-grid" role="radiogroup" aria-label={followUp.question}>
+          <div
+            className="option-grid"
+            role="radiogroup"
+            aria-label={followUp.question}
+          >
             {followUp.options.map((option) => {
               const active = selectedOption === option;
               return (
@@ -96,20 +108,29 @@ export default function Home() {
                   onClick={() => setSelectedOption(option)}
                 >
                   <span>{option}</span>
-                  <span className="option-indicator" aria-hidden="true">{active ? "✓" : ""}</span>
+                  <span className="option-indicator" aria-hidden="true">
+                    {active ? "✓" : ""}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          <button className="continue-button" type="button" disabled={!selectedOption}>
+          <button
+            className="continue-button"
+            type="button"
+            disabled={!selectedOption}
+          >
             Continue →
           </button>
 
           {selectedOption ? (
             <div className="prototype-note" role="status">
               <strong>Screen 2 is working.</strong>
-              <span>Next, this answer will help the AI decide the next best question.</span>
+              <span>
+                Next, this answer will help the AI decide the next best
+                question.
+              </span>
             </div>
           ) : null}
         </section>
@@ -121,7 +142,9 @@ export default function Home() {
     <main className="page-shell">
       <section className="hero" aria-labelledby="page-title">
         <div className="brand-row">
-          <span className="brand-mark" aria-hidden="true">D24</span>
+          <span className="brand-mark" aria-hidden="true">
+            D24
+          </span>
           <span className="brand-name">Deep24 Idea Lab</span>
         </div>
 
@@ -129,7 +152,8 @@ export default function Home() {
           <p className="eyebrow">IDEA → BUILD SPEC</p>
           <h1 id="page-title">What do you want to build?</h1>
           <p className="subtitle">
-            Describe your idea in plain English. You don&apos;t need to know anything about coding.
+            Describe your idea in plain English. You don&apos;t need to know
+            anything about coding.
           </p>
         </div>
 
@@ -160,17 +184,28 @@ export default function Home() {
                   type="button"
                   onClick={() => setIdea(example)}
                 >
-                  {example.replace(/^I (want|need) (an app|something|a tool) (that )?/i, "")}
+                  {example.replace(
+                    /^I (want|need) (an app|something|a tool) (that )?/i,
+                    "",
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          <button className="continue-button" type="submit" disabled={!idea.trim() || isLoading}>
+          <button
+            className="continue-button"
+            type="submit"
+            disabled={!idea.trim() || isLoading}
+          >
             {isLoading ? "Understanding your idea..." : "Continue →"}
           </button>
 
-          {error ? <p className="error-message" role="alert">{error}</p> : null}
+          {error ? (
+            <p className="error-message" role="alert">
+              {error}
+            </p>
+          ) : null}
         </form>
       </section>
     </main>
