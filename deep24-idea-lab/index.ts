@@ -1,0 +1,17 @@
+export type HistoryItem = { question: string; answer: string };
+export type AppPlan = {
+  name: string;
+  tagline: string;
+  purpose: string;
+  targetUser: string;
+  features: string[];
+  screens: string[];
+};
+export type BuildSpec = {
+  productSummary: string;
+  userStories: string[];
+  dataEntities: { name: string; fields: string[] }[];
+  screenDetails: { name: string; purpose: string; actions: string[] }[];
+  acceptanceCriteria: string[];
+  agentPrompt: string;
+};

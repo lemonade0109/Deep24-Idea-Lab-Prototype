@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import React from "react";
 
 type FollowUp = {
   question: string;
@@ -39,19 +39,24 @@ const examples = [
 ];
 
 export default function Home() {
-  const [idea, setIdea] = useState("");
-  const [submittedIdea, setSubmittedIdea] = useState("");
-  const [followUp, setFollowUp] = useState<FollowUp | null>(null);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [selectedOption, setSelectedOption] = useState("");
-  const [customAnswer, setCustomAnswer] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [spec, setSpec] = useState<AppSpec | null>(null);
-  const [buildSpec, setBuildSpec] = useState<BuildSpec | null>(null);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [idea, setIdea] = React.useState("");
+  const [submittedIdea, setSubmittedIdea] = React.useState("");
+  const [followUp, setFollowUp] = React.useState<FollowUp | null>(null);
+  const [history, setHistory] = React.useState<HistoryItem[]>([]);
+  const [selectedOption, setSelectedOption] = React.useState("");
+  const [customAnswer, setCustomAnswer] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [spec, setSpec] = React.useState<AppSpec | null>(null);
+  const [buildSpec, setBuildSpec] = React.useState<BuildSpec | null>(null);
+  const [copyStatus, setCopyStatus] = React.useState<
+    "idle" | "copied" | "failed"
+  >("idle");
 
-  async function getNextQuestion(currentIdea: string, currentHistory: HistoryItem[]) {
+  async function getNextQuestion(
+    currentIdea: string,
+    currentHistory: HistoryItem[],
+  ) {
     const response = await fetch("/api/follow-up", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -65,7 +70,7 @@ export default function Home() {
     return (await response.json()) as FollowUp;
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedIdea = idea.trim();
     if (!trimmedIdea || isLoading) return;
@@ -87,7 +92,10 @@ export default function Home() {
 
   async function handleAnswer() {
     if (!followUp || isLoading) return;
-    const answer = selectedOption === "Something else" ? customAnswer.trim() : selectedOption;
+    const answer =
+      selectedOption === "Something else"
+        ? customAnswer.trim()
+        : selectedOption;
     if (!answer) return;
 
     const nextHistory = [...history, { question: followUp.question, answer }];
@@ -136,10 +144,13 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idea: submittedIdea, history, plan: spec }),
       });
-      if (!response.ok) throw new Error("Could not create build specification.");
+      if (!response.ok)
+        throw new Error("Could not create build specification.");
       setBuildSpec((await response.json()) as BuildSpec);
     } catch {
-      setError("We couldn't create the build specification just yet. Please try again.");
+      setError(
+        "We couldn't create the build specification just yet. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -182,23 +193,134 @@ export default function Home() {
   if (buildSpec && spec) {
     return (
       <main className="page-shell">
-        <section className="hero build-spec-screen" aria-labelledby="build-spec-title">
-          <div className="brand-row compact-brand"><span className="brand-mark" aria-hidden="true">D24</span><span className="brand-name">Deep24 Idea Lab</span><span className="exploration-badge">Product exploration</span></div>
-          <button className="back-button" type="button" onClick={() => setBuildSpec(null)}>← Back to app plan</button>
+        <section
+          className="hero build-spec-screen"
+          aria-labelledby="build-spec-title"
+        >
+          <div className="brand-row compact-brand">
+            <span className="brand-mark" aria-hidden="true">
+              D24
+            </span>
+            <span className="brand-name">Deep24 Idea Lab</span>
+            <span className="exploration-badge">Product exploration</span>
+          </div>
+          <button
+            className="back-button"
+            type="button"
+            onClick={() => setBuildSpec(null)}
+          >
+            ← Back to app plan
+          </button>
           <div className="spec-heading">
             <p className="eyebrow">CODING-AGENT-READY SPECIFICATION</p>
-            <h1 id="build-spec-title" className="spec-name">{spec.name}</h1>
-            <p className="spec-tagline">Your idea has been translated into a structured handoff a coding agent can build from.</p>
+            <h1 id="build-spec-title" className="spec-name">
+              {spec.name}
+            </h1>
+            <p className="spec-tagline">
+              Your idea has been translated into a structured handoff a coding
+              agent can build from.
+            </p>
           </div>
-          <div className="handoff-status"><span className="ready-dot">✓</span><div><strong>Ready for agent handoff</strong><p>{buildSpec.productSummary}</p></div></div>
-          <div className="spec-section"><div className="spec-section-title"><span>User stories</span></div><div className="feature-list">{buildSpec.userStories.map((story, i) => <div className="feature-item" key={story}><span>{String(i+1).padStart(2,"0")}</span><p>{story}</p></div>)}</div></div>
-          <div className="spec-section"><div className="spec-section-title"><span>Data model</span></div><div className="entity-grid">{buildSpec.dataEntities.map(entity => <div className="entity-card" key={entity.name}><strong>{entity.name}</strong><p>{entity.fields.join(" · ")}</p></div>)}</div></div>
-          <div className="spec-section"><div className="spec-section-title"><span>Screen requirements</span></div><div className="screen-detail-list">{buildSpec.screenDetails.map(screen => <div className="screen-detail" key={screen.name}><strong>{screen.name}</strong><p>{screen.purpose}</p><small>{screen.actions.join(" · ")}</small></div>)}</div></div>
-          <div className="spec-section"><div className="spec-section-title"><span>Definition of done</span></div><div className="criteria-list">{buildSpec.acceptanceCriteria.map(item => <div key={item}><span>✓</span><p>{item}</p></div>)}</div></div>
-          <div className="agent-prompt-card"><div className="spec-section-title"><span>Agent handoff prompt</span><small>Ready to copy</small></div><p>{buildSpec.agentPrompt}</p></div>
-          <div className="final-actions"><button className="secondary-button" type="button" onClick={createBuildSpec} disabled={isLoading}>{isLoading ? "Regenerating..." : "Regenerate spec"}</button><button className="continue-button spec-continue" type="button" onClick={copyAgentPrompt}>{copyStatus === "copied" ? "Copied ✓" : copyStatus === "failed" ? "Copy failed" : "Copy agent prompt"}</button></div>
-          <button className="start-over-button" type="button" onClick={resetPrototype}>Start a new idea</button>
-          {error ? <p className="error-message" role="alert">{error}</p> : null}
+          <div className="handoff-status">
+            <span className="ready-dot">✓</span>
+            <div>
+              <strong>Ready for agent handoff</strong>
+              <p>{buildSpec.productSummary}</p>
+            </div>
+          </div>
+          <div className="spec-section">
+            <div className="spec-section-title">
+              <span>User stories</span>
+            </div>
+            <div className="feature-list">
+              {buildSpec.userStories.map((story, i) => (
+                <div className="feature-item" key={story}>
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                  <p>{story}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="spec-section">
+            <div className="spec-section-title">
+              <span>Data model</span>
+            </div>
+            <div className="entity-grid">
+              {buildSpec.dataEntities.map((entity) => (
+                <div className="entity-card" key={entity.name}>
+                  <strong>{entity.name}</strong>
+                  <p>{entity.fields.join(" · ")}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="spec-section">
+            <div className="spec-section-title">
+              <span>Screen requirements</span>
+            </div>
+            <div className="screen-detail-list">
+              {buildSpec.screenDetails.map((screen) => (
+                <div className="screen-detail" key={screen.name}>
+                  <strong>{screen.name}</strong>
+                  <p>{screen.purpose}</p>
+                  <small>{screen.actions.join(" · ")}</small>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="spec-section">
+            <div className="spec-section-title">
+              <span>Definition of done</span>
+            </div>
+            <div className="criteria-list">
+              {buildSpec.acceptanceCriteria.map((item) => (
+                <div key={item}>
+                  <span>✓</span>
+                  <p>{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="agent-prompt-card">
+            <div className="spec-section-title">
+              <span>Agent handoff prompt</span>
+              <small>Ready to copy</small>
+            </div>
+            <p>{buildSpec.agentPrompt}</p>
+          </div>
+          <div className="final-actions">
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={createBuildSpec}
+              disabled={isLoading}
+            >
+              {isLoading ? "Regenerating..." : "Regenerate spec"}
+            </button>
+            <button
+              className="continue-button spec-continue"
+              type="button"
+              onClick={copyAgentPrompt}
+            >
+              {copyStatus === "copied"
+                ? "Copied ✓"
+                : copyStatus === "failed"
+                  ? "Copy failed"
+                  : "Copy agent prompt"}
+            </button>
+          </div>
+          <button
+            className="start-over-button"
+            type="button"
+            onClick={resetPrototype}
+          >
+            Start a new idea
+          </button>
+          {error ? (
+            <p className="error-message" role="alert">
+              {error}
+            </p>
+          ) : null}
         </section>
       </main>
     );
@@ -209,52 +331,118 @@ export default function Home() {
       <main className="page-shell">
         <section className="hero spec-screen" aria-labelledby="spec-title">
           <div className="brand-row compact-brand">
-            <span className="brand-mark" aria-hidden="true">D24</span>
+            <span className="brand-mark" aria-hidden="true">
+              D24
+            </span>
             <span className="brand-name">Deep24 Idea Lab</span>
           </div>
-          <button className="back-button" type="button" onClick={() => setSpec(null)}>← Back to answers</button>
+          <button
+            className="back-button"
+            type="button"
+            onClick={() => setSpec(null)}
+          >
+            ← Back to answers
+          </button>
           <div className="spec-heading">
             <p className="eyebrow">HERE'S WHAT I THINK YOU NEED</p>
-            <h1 id="spec-title" className="spec-name">{spec.name}</h1>
+            <h1 id="spec-title" className="spec-name">
+              {spec.name}
+            </h1>
             <p className="spec-tagline">{spec.tagline}</p>
           </div>
           <div className="spec-meta-grid">
-            <div className="spec-card"><span>Purpose</span><p>{spec.purpose}</p></div>
-            <div className="spec-card"><span>Built for</span><p>{spec.targetUser}</p></div>
+            <div className="spec-card">
+              <span>Purpose</span>
+              <p>{spec.purpose}</p>
+            </div>
+            <div className="spec-card">
+              <span>Built for</span>
+              <p>{spec.targetUser}</p>
+            </div>
           </div>
           <div className="spec-section">
-            <div className="spec-section-title"><span>What your app will do</span><small>{spec.features.length} core features</small></div>
-            <div className="feature-list">{spec.features.map((feature, index) => <div className="feature-item" key={feature}><span>{String(index + 1).padStart(2, "0")}</span><p>{feature}</p></div>)}</div>
+            <div className="spec-section-title">
+              <span>What your app will do</span>
+              <small>{spec.features.length} core features</small>
+            </div>
+            <div className="feature-list">
+              {spec.features.map((feature, index) => (
+                <div className="feature-item" key={feature}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <p>{feature}</p>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="spec-section">
-            <div className="spec-section-title"><span>Suggested screens</span></div>
-            <div className="screen-chips">{spec.screens.map((screen) => <span key={screen}>{screen}</span>)}</div>
+            <div className="spec-section-title">
+              <span>Suggested screens</span>
+            </div>
+            <div className="screen-chips">
+              {spec.screens.map((screen) => (
+                <span key={screen}>{screen}</span>
+              ))}
+            </div>
           </div>
           <div className="spec-actions">
-            <button className="secondary-button" type="button" onClick={createAppPlan} disabled={isLoading}>{isLoading ? "Rethinking..." : "Regenerate"}</button>
-            <button className="continue-button spec-continue" type="button" onClick={createBuildSpec} disabled={isLoading}>{isLoading ? "Preparing handoff..." : "Looks good →"}</button>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={createAppPlan}
+              disabled={isLoading}
+            >
+              {isLoading ? "Rethinking..." : "Regenerate"}
+            </button>
+            <button
+              className="continue-button spec-continue"
+              type="button"
+              onClick={createBuildSpec}
+              disabled={isLoading}
+            >
+              {isLoading ? "Preparing handoff..." : "Looks good →"}
+            </button>
           </div>
-          <p className="next-screen-note centered-note">Approve this plan to generate a structured handoff for a coding agent.</p>
-          {error ? <p className="error-message" role="alert">{error}</p> : null}
+          <p className="next-screen-note centered-note">
+            Approve this plan to generate a structured handoff for a coding
+            agent.
+          </p>
+          {error ? (
+            <p className="error-message" role="alert">
+              {error}
+            </p>
+          ) : null}
         </section>
       </main>
     );
   }
 
   if (followUp) {
-    const answerReady = selectedOption && (selectedOption !== "Something else" || customAnswer.trim());
+    const answerReady =
+      selectedOption &&
+      (selectedOption !== "Something else" || customAnswer.trim());
 
     return (
       <main className="page-shell">
-        <section className="hero question-screen" aria-labelledby="question-title">
+        <section
+          className="hero question-screen"
+          aria-labelledby="question-title"
+        >
           <div className="brand-row compact-brand">
-            <span className="brand-mark" aria-hidden="true">D24</span>
+            <span className="brand-mark" aria-hidden="true">
+              D24
+            </span>
             <span className="brand-name">Deep24 Idea Lab</span>
           </div>
 
           <div className="interview-topbar">
-            <button className="back-button" type="button" onClick={goBack}>← Edit idea</button>
-            {!followUp.readyForSpec ? <span className="step-count">Question {history.length + 1} of 3</span> : null}
+            <button className="back-button" type="button" onClick={goBack}>
+              ← Edit idea
+            </button>
+            {!followUp.readyForSpec ? (
+              <span className="step-count">
+                Question {history.length + 1} of 3
+              </span>
+            ) : null}
           </div>
 
           <div className="idea-context">
@@ -265,7 +453,10 @@ export default function Home() {
           {history.length > 0 ? (
             <div className="answer-summary" aria-label="Previous answers">
               {history.map((item, index) => (
-                <div className="answer-summary-item" key={`${item.question}-${index}`}>
+                <div
+                  className="answer-summary-item"
+                  key={`${item.question}-${index}`}
+                >
                   <span>{index + 1}</span>
                   <p>{item.answer}</p>
                 </div>
@@ -275,26 +466,44 @@ export default function Home() {
 
           {followUp.readyForSpec ? (
             <div className="ready-card">
-              <div className="ready-icon" aria-hidden="true">✓</div>
+              <div className="ready-icon" aria-hidden="true">
+                ✓
+              </div>
               <p className="eyebrow">ENOUGH TO MOVE FORWARD</p>
-              <h1 id="question-title" className="question-title">{followUp.question}</h1>
+              <h1 id="question-title" className="question-title">
+                {followUp.question}
+              </h1>
               <p className="subtitle question-helper">{followUp.helper}</p>
-              <button className="continue-button" type="button" onClick={createAppPlan} disabled={isLoading}>
+              <button
+                className="continue-button"
+                type="button"
+                onClick={createAppPlan}
+                disabled={isLoading}
+              >
                 {isLoading ? "Creating your app plan..." : "Create app plan →"}
               </button>
-              <p className="next-screen-note">Next, we’ll turn this conversation into a clear app plan.</p>
+              <p className="next-screen-note">
+                Next, we’ll turn this conversation into a clear app plan.
+              </p>
             </div>
           ) : (
             <>
               <div className="question-copy">
                 <p className="eyebrow">LET'S MAKE IT CLEARER</p>
-                <h1 id="question-title" className="question-title">{followUp.question}</h1>
+                <h1 id="question-title" className="question-title">
+                  {followUp.question}
+                </h1>
                 <p className="subtitle question-helper">
-                  {followUp.helper ?? "Choose the answer that best matches what you have in mind."}
+                  {followUp.helper ??
+                    "Choose the answer that best matches what you have in mind."}
                 </p>
               </div>
 
-              <div className="option-grid" role="radiogroup" aria-label={followUp.question}>
+              <div
+                className="option-grid"
+                role="radiogroup"
+                aria-label={followUp.question}
+              >
                 {followUp.options.map((option) => {
                   const active = selectedOption === option;
                   return (
@@ -310,7 +519,9 @@ export default function Home() {
                       }}
                     >
                       <span>{option}</span>
-                      <span className="option-indicator" aria-hidden="true">{active ? "✓" : ""}</span>
+                      <span className="option-indicator" aria-hidden="true">
+                        {active ? "✓" : ""}
+                      </span>
                     </button>
                   );
                 })}
@@ -318,7 +529,9 @@ export default function Home() {
 
               {selectedOption === "Something else" ? (
                 <div className="custom-answer-wrap">
-                  <label htmlFor="custom-answer">Tell us in your own words</label>
+                  <label htmlFor="custom-answer">
+                    Tell us in your own words
+                  </label>
                   <input
                     id="custom-answer"
                     value={customAnswer}
@@ -330,11 +543,24 @@ export default function Home() {
                 </div>
               ) : null}
 
-              <button className="continue-button" type="button" disabled={!answerReady || isLoading} onClick={handleAnswer}>
-                {isLoading ? "Thinking about your answer..." : history.length >= 2 ? "Finish →" : "Continue →"}
+              <button
+                className="continue-button"
+                type="button"
+                disabled={!answerReady || isLoading}
+                onClick={handleAnswer}
+              >
+                {isLoading
+                  ? "Thinking about your answer..."
+                  : history.length >= 2
+                    ? "Finish →"
+                    : "Continue →"}
               </button>
 
-              {error ? <p className="error-message" role="alert">{error}</p> : null}
+              {error ? (
+                <p className="error-message" role="alert">
+                  {error}
+                </p>
+              ) : null}
             </>
           )}
         </section>
@@ -346,7 +572,9 @@ export default function Home() {
     <main className="page-shell">
       <section className="hero" aria-labelledby="page-title">
         <div className="brand-row">
-          <span className="brand-mark" aria-hidden="true">D24</span>
+          <span className="brand-mark" aria-hidden="true">
+            D24
+          </span>
           <span className="brand-name">Deep24 Idea Lab</span>
           <span className="exploration-badge">Product exploration</span>
         </div>
@@ -354,11 +582,16 @@ export default function Home() {
         <div className="intro-copy">
           <p className="eyebrow">IDEA → BUILD SPEC</p>
           <h1 id="page-title">What do you want to build?</h1>
-          <p className="subtitle">Describe your idea in plain English. You don&apos;t need to know anything about coding.</p>
+          <p className="subtitle">
+            Describe your idea in plain English. You don&apos;t need to know
+            anything about coding.
+          </p>
         </div>
 
         <form className="idea-form" onSubmit={handleSubmit}>
-          <label className="sr-only" htmlFor="idea">Describe the app you want to build</label>
+          <label className="sr-only" htmlFor="idea">
+            Describe the app you want to build
+          </label>
           <textarea
             id="idea"
             value={idea}
@@ -376,21 +609,44 @@ export default function Home() {
             <p>Try an example</p>
             <div className="example-list">
               {examples.map((example) => (
-                <button className="example-chip" key={example} type="button" onClick={() => setIdea(example)}>
-                  {example.replace(/^I (want|need) (an app|something|a tool) (that )?/i, "")}
+                <button
+                  className="example-chip"
+                  key={example}
+                  type="button"
+                  onClick={() => setIdea(example)}
+                >
+                  {example.replace(
+                    /^I (want|need) (an app|something|a tool) (that )?/i,
+                    "",
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          <button className="continue-button" type="submit" disabled={idea.trim().length < 8 || isLoading}>
+          <button
+            className="continue-button"
+            type="submit"
+            disabled={idea.trim().length < 8 || isLoading}
+          >
             {isLoading ? "Understanding your idea..." : "Continue →"}
           </button>
 
-          {idea.trim().length > 0 && idea.trim().length < 8 ? <p className="hint-message">Add a little more detail so I can ask a useful question.</p> : null}
-          {error ? <p className="error-message" role="alert">{error}</p> : null}
+          {idea.trim().length > 0 && idea.trim().length < 8 ? (
+            <p className="hint-message">
+              Add a little more detail so I can ask a useful question.
+            </p>
+          ) : null}
+          {error ? (
+            <p className="error-message" role="alert">
+              {error}
+            </p>
+          ) : null}
         </form>
-        <p className="prototype-footer">Independent product exploration inspired by Deep24’s idea-to-app workflow.</p>
+        <p className="prototype-footer">
+          Independent product exploration inspired by Deep24’s idea-to-app
+          workflow.
+        </p>
       </section>
     </main>
   );
