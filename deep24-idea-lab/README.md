@@ -1,17 +1,80 @@
-# Founder outreach kit
+# Deep24 Idea Lab
 
-## Short message
+A small product exploration inspired by Deep24's idea-to-app workflow.
 
-Hi Oliver — I’ve been looking closely at Deep24’s idea-to-app direction and built a small product exploration around one problem I think naturally appears in that workflow.
+Non-technical users often know _what_ they want to build but describe it too vaguely for a coding agent to act on. This prototype adds a lightweight requirements-intelligence layer in front of that gap: it interviews the user with a few context-aware questions, turns the answers into a plain-English app plan, and then produces a structured, coding-agent-ready specification.
 
-A non-technical user may know the app they want, but describe it too vaguely for a coding agent to build the right thing. I prototyped a lightweight requirements-intelligence layer that asks a few context-aware questions, turns the answers into a human-readable app plan, then produces a structured handoff for a coding agent.
+> This is a narrow, independent exploration — not an attempt to recreate Deep24.
 
-I built the working prototype in Next.js + TypeScript with Gemini handling the requirements reasoning. It’s deliberately narrow rather than an attempt to recreate Deep24.
+## How it works
 
-Demo: [YOUR_DEMO_URL]
-GitHub: [YOUR_GITHUB_URL]
+1. **Describe your idea** — the user types a short, plain-English description of the app they want.
+2. **Answer a few follow-up questions** — each question is generated from the original idea plus every previous answer, so the interview adapts as it goes. It ends automatically once there's enough context (max ~3 questions).
+3. **Review the app plan** — the conversation is turned into a human-readable plan: purpose, target user, core features, and suggested screens.
+4. **Get the agent handoff** — once the plan is approved, the app generates a structured specification (user stories, data entities, screen requirements, acceptance criteria) plus a self-contained prompt that can be copied straight into a coding agent.
 
-I’d love to hear whether this problem lines up with anything you’ve seen while building Deep24.
+## Tech stack
+
+- **[Next.js](https://nextjs.org)** (App Router) + **TypeScript** — UI and API routes
+- **React 19**
+- **[Gemini API](https://ai.google.dev)** — powers the follow-up questions, app plan, and build spec generation, with rule-based fallbacks if the API is unavailable
+
+## Project structure
+
+```
+app/
+  page.tsx              # Screen orchestration and state
+  api/
+    follow-up/route.ts   # Generates the next interview question
+    spec/route.ts        # Turns idea & answers into an app plan
+    build-spec/route.ts  # Turns the app plan into an agent-ready spec
+components/              # One component per screen (idea form, question, plan, build spec)
+lib/
+  actions/                # Client-side fetch wrappers for the API routes
+  helpers/                # Small pure helper functions
+types/                    # Shared TypeScript types
+```
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 18.18+
+- A [Gemini API key](https://aistudio.google.com/apikey)
+
+### Setup
+
+```bash
+npm install
+```
+
+Create a `.env.local` file in the project root:
+
+```bash
+GEMINI_API_KEY=your_api_key_here
+GEMINI_MODEL=gemini-2.5-flash   # optional, defaults to gemini-2.5-flash
+```
+
+### Run locally
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+### Other scripts
+
+```bash
+npm run build   # production build
+npm run start   # run the production build
+npm run lint    # lint the project
+```
+
+## Notes
+
+- If `GEMINI_API_KEY` is missing or the request fails, each API route falls back to a rule-based response so the demo flow still works end-to-end.
+- The interview logic is intentionally kept short (max 3 questions) to keep the flow fast for a demo.
 
 ## 60-second demo script
 
