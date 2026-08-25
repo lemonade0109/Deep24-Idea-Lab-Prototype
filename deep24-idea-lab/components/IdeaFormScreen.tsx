@@ -85,7 +85,7 @@ export function IdeaFormScreen({
           ) : null}
         </form>
         <p className="prototype-footer">
-          Independent product exploration inspired by Deep24’s idea-to-app
+          Independent product exploration inspired by Deep24&apos;s idea-to-app
           workflow.
         </p>
       </section>
