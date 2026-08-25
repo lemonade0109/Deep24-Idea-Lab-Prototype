@@ -49,6 +49,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [spec, setSpec] = useState<AppSpec | null>(null);
   const [buildSpec, setBuildSpec] = useState<BuildSpec | null>(null);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   async function getNextQuestion(currentIdea: string, currentHistory: HistoryItem[]) {
     const response = await fetch("/api/follow-up", {
@@ -144,6 +145,30 @@ export default function Home() {
     }
   }
 
+  function resetPrototype() {
+    setIdea("");
+    setSubmittedIdea("");
+    setFollowUp(null);
+    setHistory([]);
+    setSelectedOption("");
+    setCustomAnswer("");
+    setError("");
+    setSpec(null);
+    setBuildSpec(null);
+    setCopyStatus("idle");
+  }
+
+  async function copyAgentPrompt() {
+    if (!buildSpec) return;
+    try {
+      await navigator.clipboard.writeText(buildSpec.agentPrompt);
+      setCopyStatus("copied");
+      window.setTimeout(() => setCopyStatus("idle"), 1800);
+    } catch {
+      setCopyStatus("failed");
+    }
+  }
+
   function goBack() {
     setFollowUp(null);
     setHistory([]);
@@ -158,7 +183,7 @@ export default function Home() {
     return (
       <main className="page-shell">
         <section className="hero build-spec-screen" aria-labelledby="build-spec-title">
-          <div className="brand-row compact-brand"><span className="brand-mark" aria-hidden="true">D24</span><span className="brand-name">Deep24 Idea Lab</span></div>
+          <div className="brand-row compact-brand"><span className="brand-mark" aria-hidden="true">D24</span><span className="brand-name">Deep24 Idea Lab</span><span className="exploration-badge">Product exploration</span></div>
           <button className="back-button" type="button" onClick={() => setBuildSpec(null)}>← Back to app plan</button>
           <div className="spec-heading">
             <p className="eyebrow">CODING-AGENT-READY SPECIFICATION</p>
@@ -171,7 +196,8 @@ export default function Home() {
           <div className="spec-section"><div className="spec-section-title"><span>Screen requirements</span></div><div className="screen-detail-list">{buildSpec.screenDetails.map(screen => <div className="screen-detail" key={screen.name}><strong>{screen.name}</strong><p>{screen.purpose}</p><small>{screen.actions.join(" · ")}</small></div>)}</div></div>
           <div className="spec-section"><div className="spec-section-title"><span>Definition of done</span></div><div className="criteria-list">{buildSpec.acceptanceCriteria.map(item => <div key={item}><span>✓</span><p>{item}</p></div>)}</div></div>
           <div className="agent-prompt-card"><div className="spec-section-title"><span>Agent handoff prompt</span><small>Ready to copy</small></div><p>{buildSpec.agentPrompt}</p></div>
-          <div className="final-actions"><button className="secondary-button" type="button" onClick={createBuildSpec} disabled={isLoading}>{isLoading ? "Regenerating..." : "Regenerate spec"}</button><button className="continue-button spec-continue" type="button" onClick={() => navigator.clipboard?.writeText(buildSpec.agentPrompt)}>Copy agent prompt</button></div>
+          <div className="final-actions"><button className="secondary-button" type="button" onClick={createBuildSpec} disabled={isLoading}>{isLoading ? "Regenerating..." : "Regenerate spec"}</button><button className="continue-button spec-continue" type="button" onClick={copyAgentPrompt}>{copyStatus === "copied" ? "Copied ✓" : copyStatus === "failed" ? "Copy failed" : "Copy agent prompt"}</button></div>
+          <button className="start-over-button" type="button" onClick={resetPrototype}>Start a new idea</button>
           {error ? <p className="error-message" role="alert">{error}</p> : null}
         </section>
       </main>
@@ -208,7 +234,7 @@ export default function Home() {
             <button className="secondary-button" type="button" onClick={createAppPlan} disabled={isLoading}>{isLoading ? "Rethinking..." : "Regenerate"}</button>
             <button className="continue-button spec-continue" type="button" onClick={createBuildSpec} disabled={isLoading}>{isLoading ? "Preparing handoff..." : "Looks good →"}</button>
           </div>
-          <p className="next-screen-note centered-note">Approve this plan to generate the final coding-agent handoff.</p>
+          <p className="next-screen-note centered-note">Approve this plan to generate a structured handoff for a coding agent.</p>
           {error ? <p className="error-message" role="alert">{error}</p> : null}
         </section>
       </main>
@@ -256,7 +282,7 @@ export default function Home() {
               <button className="continue-button" type="button" onClick={createAppPlan} disabled={isLoading}>
                 {isLoading ? "Creating your app plan..." : "Create app plan →"}
               </button>
-              <p className="next-screen-note">Screen 4 will turn this conversation into the final build specification.</p>
+              <p className="next-screen-note">Next, we’ll turn this conversation into a clear app plan.</p>
             </div>
           ) : (
             <>
@@ -322,6 +348,7 @@ export default function Home() {
         <div className="brand-row">
           <span className="brand-mark" aria-hidden="true">D24</span>
           <span className="brand-name">Deep24 Idea Lab</span>
+          <span className="exploration-badge">Product exploration</span>
         </div>
 
         <div className="intro-copy">
@@ -356,12 +383,14 @@ export default function Home() {
             </div>
           </div>
 
-          <button className="continue-button" type="submit" disabled={!idea.trim() || isLoading}>
+          <button className="continue-button" type="submit" disabled={idea.trim().length < 8 || isLoading}>
             {isLoading ? "Understanding your idea..." : "Continue →"}
           </button>
 
+          {idea.trim().length > 0 && idea.trim().length < 8 ? <p className="hint-message">Add a little more detail so I can ask a useful question.</p> : null}
           {error ? <p className="error-message" role="alert">{error}</p> : null}
         </form>
+        <p className="prototype-footer">Independent product exploration inspired by Deep24’s idea-to-app workflow.</p>
       </section>
     </main>
   );

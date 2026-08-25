@@ -156,8 +156,8 @@ export async function POST(request: Request) {
       )
     : [];
 
-  if (!idea) {
-    return NextResponse.json({ error: "Idea is required." }, { status: 400 });
+  if (!idea || idea.length > 500) {
+    return NextResponse.json({ error: "A valid idea is required." }, { status: 400 });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -176,6 +176,7 @@ export async function POST(request: Request) {
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: "POST",
+        signal: AbortSignal.timeout(12000),
         headers: {
           "x-goog-api-key": apiKey,
           "Content-Type": "application/json",

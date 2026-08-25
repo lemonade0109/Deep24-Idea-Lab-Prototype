@@ -53,7 +53,7 @@ export async function POST(request: Request) {
   const idea = typeof body.idea === "string" ? body.idea.trim() : "";
   const history = Array.isArray(body.history) ? body.history as HistoryItem[] : [];
   const plan = body.plan as AppPlan | undefined;
-  if (!idea || !plan?.name || !Array.isArray(plan.features) || !Array.isArray(plan.screens)) return NextResponse.json({ error: "Approved plan is required." }, { status: 400 });
+  if (!idea || idea.length > 500 || history.length > 5 || !plan?.name || !Array.isArray(plan.features) || !Array.isArray(plan.screens)) return NextResponse.json({ error: "Approved plan is required." }, { status: 400 });
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return NextResponse.json(fallback(plan));
@@ -63,6 +63,7 @@ export async function POST(request: Request) {
     const interview = history.map((x, i) => `Q${i + 1}: ${x.question}\nA${i + 1}: ${x.answer}`).join("\n\n");
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
+      signal: AbortSignal.timeout(12000),
       headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: "You convert an approved plain-English app plan into a concise coding-agent-ready product specification. Stay faithful to the user's idea. Do not invent complex integrations or enterprise features. Return only JSON with exactly: productSummary (string), userStories (array of 4-6 strings), dataEntities (array of objects {name, fields:string[]}), screenDetails (array of objects {name,purpose,actions:string[]}), acceptanceCriteria (array of 5-7 testable strings), agentPrompt (one self-contained implementation prompt, 120-220 words)." }] },

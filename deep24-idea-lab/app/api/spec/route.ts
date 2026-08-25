@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as { idea?: unknown; history?: unknown };
   const idea = typeof body.idea === "string" ? body.idea.trim() : "";
   const history = Array.isArray(body.history) ? body.history.filter((x): x is HistoryItem => typeof x === "object" && x !== null && typeof (x as HistoryItem).question === "string" && typeof (x as HistoryItem).answer === "string") : [];
-  if (!idea) return NextResponse.json({ error: "Idea is required." }, { status: 400 });
+  if (!idea || idea.length > 500 || history.length > 5) return NextResponse.json({ error: "Invalid interview data." }, { status: 400 });
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return NextResponse.json(fallbackSpec(idea, history));
   try {
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
     const conversation = history.map((x, i) => `Q${i + 1}: ${x.question}\nA${i + 1}: ${x.answer}`).join("\n\n");
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
+      signal: AbortSignal.timeout(12000),
       headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: "You turn a non-technical user's rough app idea and short interview answers into a concise product plan. Do not add speculative features unrelated to their answers. Use plain English. Give the app a short memorable name. Return only JSON with exactly these keys: name (string), tagline (one sentence), purpose (1-2 sentences), targetUser (short string), features (array of 4-6 concrete user-facing features), screens (array of 4-6 short screen names)." }] },
