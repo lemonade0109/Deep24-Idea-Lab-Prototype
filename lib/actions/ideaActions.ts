@@ -1,53 +1,47 @@
-import { AppSpec, BuildSpec, FollowUp, HistoryItem } from "@/types";
+import type { AppSpec, BuildSpec, FollowUp, HistoryItem } from "@/types";
 
-export async function fetchFollowUp(
-  idea: string,
-  history: HistoryItem[],
-): Promise<FollowUp> {
-  const response = await fetch("/api/follow-up", {
+async function postJson<T>(
+  url: string,
+  body: unknown,
+  errorMessage: string,
+): Promise<T> {
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idea, history }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    throw new Error("Could not generate a follow-up question.");
+    throw new Error(errorMessage);
   }
 
-  return (await response.json()) as FollowUp;
+  return (await response.json()) as T;
 }
 
-export async function fetchAppSpec(
-  idea: string,
-  history: HistoryItem[],
-): Promise<AppSpec> {
-  const response = await fetch("/api/spec", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idea, history }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Could not create app plan.");
-  }
-
-  return (await response.json()) as AppSpec;
+export function fetchFollowUp(idea: string, history: HistoryItem[]) {
+  return postJson<FollowUp>(
+    "/api/follow-up",
+    { idea, history },
+    "Could not generate a follow-up question.",
+  );
 }
 
-export async function fetchBuildSpec(
+export function fetchAppSpec(idea: string, history: HistoryItem[]) {
+  return postJson<AppSpec>(
+    "/api/spec",
+    { idea, history },
+    "Could not create app plan.",
+  );
+}
+
+export function fetchBuildSpec(
   idea: string,
   history: HistoryItem[],
   plan: AppSpec,
-): Promise<BuildSpec> {
-  const response = await fetch("/api/build-spec", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idea, history, plan }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Could not create build specification.");
-  }
-
-  return (await response.json()) as BuildSpec;
+) {
+  return postJson<BuildSpec>(
+    "/api/build-spec",
+    { idea, history, plan },
+    "Could not create build specification.",
+  );
 }
