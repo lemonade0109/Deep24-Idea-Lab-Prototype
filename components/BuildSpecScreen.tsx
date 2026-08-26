@@ -1,19 +1,9 @@
 "use client";
 
-import { AppSpec, BuildSpec } from "@/types";
+import type { AppSpec, BuildSpec } from "@/types";
 import { BrandRow } from "./BrandRow";
 
-type BuildSpecScreenProps = {
-  spec: AppSpec;
-  buildSpec: BuildSpec;
-  isLoading: boolean;
-  error: string;
-  copyStatus: "idle" | "copied" | "failed";
-  onBack: () => void;
-  onRegenerate: () => void;
-  onCopyAgentPrompt: () => void;
-  onStartOver: () => void;
-};
+import type { BuildSpecScreenProps } from "@/types";
 
 export function BuildSpecScreen({
   spec,
@@ -58,9 +48,9 @@ export function BuildSpecScreen({
             <span>User stories</span>
           </div>
           <div className="feature-list">
-            {buildSpec.userStories.map((story, i) => (
+            {buildSpec.userStories.map((story, index) => (
               <div className="feature-item" key={story}>
-                <span>{String(i + 1).padStart(2, "0")}</span>
+                <span>{String(index + 1).padStart(2, "0")}</span>
                 <p>{story}</p>
               </div>
             ))}

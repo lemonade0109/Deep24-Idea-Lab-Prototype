@@ -54,3 +54,15 @@ export type AppPlanScreenProps = {
 export type BrandRowProps = {
   compact?: boolean;
 };
+
+export type BuildSpecScreenProps = {
+  spec: AppSpec;
+  buildSpec: BuildSpec;
+  isLoading: boolean;
+  error: string;
+  copyStatus: "idle" | "copied" | "failed";
+  onBack: () => void;
+  onRegenerate: () => void;
+  onCopyAgentPrompt: () => void;
+  onStartOver: () => void;
+};
