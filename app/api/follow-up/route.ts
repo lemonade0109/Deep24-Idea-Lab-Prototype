@@ -1,10 +1,122 @@
+import { HistoryItem, FollowUp, Blueprint } from "@/types";
 import { NextResponse } from "next/server";
-import { HistoryItem, FollowUp } from "../../../types";
+
+function fallbackBlueprint(idea: string, history: HistoryItem[]): Blueprint {
+  const text =
+    `${idea} ${history.map((item) => item.answer).join(" ")}`.toLowerCase();
+
+  if (/watch|shop|store|business|customer|order|inventory|sell/.test(text)) {
+    return {
+      purpose:
+        history.length >= 1
+          ? "Help a small business manage its day-to-day sales workflow."
+          : "Clarifying the main business workflow.",
+      targetUser: "Small business owner",
+      features:
+        history.length >= 1
+          ? [
+              "Inventory tracking",
+              "Customer orders",
+              ...(history.length >= 2 ? ["Payment tracking"] : []),
+            ]
+          : [],
+      screens:
+        history.length >= 2
+          ? [
+              "Dashboard",
+              "Products",
+              "Orders",
+              ...(history.length >= 3 ? ["Customers", "Sales"] : []),
+            ]
+          : [],
+      missing:
+        history.length >= 3
+          ? ["Final confirmation"]
+          : history.length === 2
+            ? ["What happens after an order"]
+            : ["Main workflow", "Key actions"],
+    };
+  }
+
+  if (/study|learn|school|exam|student|flashcard/.test(text)) {
+    return {
+      purpose:
+        history.length >= 1
+          ? "Help a learner organize study material and make progress easier to track."
+          : "Clarifying the learning outcome.",
+      targetUser: "Student or independent learner",
+      features:
+        history.length >= 1
+          ? [
+              "Study workflow",
+              ...(history.length >= 2 ? ["Material import"] : []),
+              ...(history.length >= 3 ? ["Progress tracking"] : []),
+            ]
+          : [],
+      screens:
+        history.length >= 2
+          ? ["Home", "Study", ...(history.length >= 3 ? ["Progress"] : [])]
+          : [],
+      missing:
+        history.length >= 3
+          ? ["Final confirmation"]
+          : ["Preferred study flow", "Progress feedback"],
+    };
+  }
+
+  if (/workout|fitness|gym|exercise|run|training/.test(text)) {
+    return {
+      purpose:
+        history.length >= 1
+          ? "Help a user plan, track, and improve their fitness routine."
+          : "Clarifying the fitness goal.",
+      targetUser: "Individual fitness user",
+      features:
+        history.length >= 1
+          ? [
+              "Workout workflow",
+              ...(history.length >= 2 ? ["Progress history"] : []),
+              ...(history.length >= 3 ? ["Next-step guidance"] : []),
+            ]
+          : [],
+      screens:
+        history.length >= 2
+          ? ["Today", "Workouts", ...(history.length >= 3 ? ["Progress"] : [])]
+          : [],
+      missing:
+        history.length >= 3
+          ? ["Final confirmation"]
+          : ["Tracking needs", "Post-workout outcome"],
+    };
+  }
+
+  return {
+    purpose:
+      history.length >= 1
+        ? `Turn the idea “${idea.slice(0, 80)}${idea.length > 80 ? "…" : ""}” into a focused product workflow.`
+        : "Clarifying the main outcome.",
+    targetUser:
+      history.length >= 2
+        ? history[1]?.answer || "Primary user still being clarified"
+        : "Still being clarified",
+    features: history
+      .slice(0, 3)
+      .map((item) => item.answer)
+      .filter(Boolean),
+    screens: history.length >= 2 ? ["Home", "Main workflow"] : [],
+    missing:
+      history.length >= 3
+        ? ["Final confirmation"]
+        : ["Primary workflow", "Important constraints"],
+  };
+}
 
 function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
   const normalized =
     `${idea} ${history.map((item) => item.answer).join(" ")}`.toLowerCase();
   const step = history.length;
+  const completeness = [30, 56, 78, 92][Math.min(step, 3)];
+  const blueprint = fallbackBlueprint(idea, history);
 
   if (step >= 3) {
     return {
@@ -12,13 +124,19 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
       options: [],
       helper: "Next, we'll turn your answers into a clear app plan.",
       readyForSpec: true,
+      completeness,
+      blueprint,
     };
   }
+
+  const withMeta = (
+    item: Omit<FollowUp, "completeness" | "blueprint">,
+  ): FollowUp => ({ ...item, completeness, blueprint });
 
   if (
     /watch|shop|store|business|customer|order|inventory|sell/.test(normalized)
   ) {
-    const businessQuestions: FollowUp[] = [
+    const businessQuestions = [
       {
         question:
           "What part of running your business do you most want this app to help with?",
@@ -55,11 +173,13 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
         helper: "Choose the outcome that would save you the most work.",
       },
     ];
-    return businessQuestions[Math.min(step, businessQuestions.length - 1)];
+    return withMeta(
+      businessQuestions[Math.min(step, businessQuestions.length - 1)],
+    );
   }
 
   if (/study|learn|school|exam|student|flashcard/.test(normalized)) {
-    const studyQuestions: FollowUp[] = [
+    const questions = [
       {
         question: "What should the app help you do when you study?",
         options: [
@@ -91,54 +211,13 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
           "Weak areas",
           "All of these",
         ],
-        helper:
-          "Pick the feedback that would keep you most useful and motivated.",
+        helper: "Pick the feedback that would be most useful.",
       },
     ];
-    return studyQuestions[Math.min(step, studyQuestions.length - 1)];
+    return withMeta(questions[Math.min(step, questions.length - 1)]);
   }
 
-  if (/workout|fitness|gym|exercise|run|training/.test(normalized)) {
-    const fitnessQuestions: FollowUp[] = [
-      {
-        question: "What would make this fitness app most useful to you?",
-        options: [
-          "Create workout plans",
-          "Track workouts",
-          "Measure progress",
-          "Keep me consistent",
-          "Something else",
-        ],
-        helper: "Start with the job you want the app to do best.",
-      },
-      {
-        question: "What kind of information should the app remember about you?",
-        options: [
-          "Workout history",
-          "Weights and reps",
-          "Goals",
-          "Body measurements",
-          "All of these",
-        ],
-        helper: "This helps define what the app should track over time.",
-      },
-      {
-        question: "What should the app do after each workout?",
-        options: [
-          "Show progress",
-          "Suggest the next workout",
-          "Celebrate milestones",
-          "Adjust the plan",
-          "All of these",
-        ],
-        helper:
-          "Choose the follow-up that would make the app feel most useful.",
-      },
-    ];
-    return fitnessQuestions[Math.min(step, fitnessQuestions.length - 1)];
-  }
-
-  const genericQuestions: FollowUp[] = [
+  const genericQuestions = [
     {
       question: "What is the main problem you want this app to solve for you?",
       options: [
@@ -177,16 +256,63 @@ function fallbackQuestion(idea: string, history: HistoryItem[]): FollowUp {
     },
   ];
 
-  return genericQuestions[Math.min(step, genericQuestions.length - 1)];
+  return withMeta(
+    genericQuestions[Math.min(step, genericQuestions.length - 1)],
+  );
 }
 
-function extractJson(text: string): FollowUp | null {
+function extractJson(text: string, fallback: FollowUp): FollowUp | null {
   try {
+    const fallbackBp: Blueprint = fallback.blueprint ?? {
+      purpose: "",
+      targetUser: "",
+      features: [],
+      screens: [],
+      missing: [],
+    };
     const cleaned = text
       .replace(/^```json\s*/i, "")
       .replace(/\s*```$/i, "")
       .trim();
-    const parsed = JSON.parse(cleaned) as Partial<FollowUp>;
+    const parsed = JSON.parse(cleaned) as Partial<FollowUp> & {
+      blueprint?: Partial<Blueprint>;
+    };
+    const blueprint: Blueprint = {
+      purpose:
+        typeof parsed.blueprint?.purpose === "string"
+          ? parsed.blueprint.purpose
+          : fallbackBp.purpose,
+      targetUser:
+        typeof parsed.blueprint?.targetUser === "string"
+          ? parsed.blueprint.targetUser
+          : fallbackBp.targetUser,
+      features: Array.isArray(parsed.blueprint?.features)
+        ? parsed.blueprint.features
+            .filter((item): item is string => typeof item === "string")
+            .slice(0, 6)
+        : fallbackBp.features,
+      screens: Array.isArray(parsed.blueprint?.screens)
+        ? parsed.blueprint.screens
+            .filter((item): item is string => typeof item === "string")
+            .slice(0, 6)
+        : fallbackBp.screens,
+      missing: Array.isArray(parsed.blueprint?.missing)
+        ? parsed.blueprint.missing
+            .filter((item): item is string => typeof item === "string")
+            .slice(0, 4)
+        : fallbackBp.missing,
+    };
+    const rawCompleteness: number =
+      typeof parsed.completeness === "number"
+        ? parsed.completeness
+        : (fallback.completeness ?? 90);
+    const completeness = Math.max(
+      20,
+      Math.min(
+        parsed.readyForSpec === true ? 95 : 90,
+        Math.round(rawCompleteness),
+      ),
+    );
 
     if (parsed.readyForSpec === true) {
       return {
@@ -200,6 +326,8 @@ function extractJson(text: string): FollowUp | null {
             ? parsed.helper
             : "Next, we'll turn your answers into a clear app plan.",
         readyForSpec: true,
+        completeness,
+        blueprint,
       };
     }
 
@@ -217,6 +345,8 @@ function extractJson(text: string): FollowUp | null {
             ? parsed.helper
             : "Choose the answer that best matches what you have in mind.",
         readyForSpec: false,
+        completeness,
+        blueprint,
       };
     }
   } catch {
@@ -246,11 +376,9 @@ export async function POST(request: Request) {
     );
   }
 
+  const fallback = fallbackQuestion(idea, history);
   const apiKey = process.env.GEMINI_API_KEY;
-
-  if (!apiKey) {
-    return NextResponse.json(fallbackQuestion(idea, history));
-  }
+  if (!apiKey) return NextResponse.json(fallback);
 
   try {
     const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -276,7 +404,7 @@ export async function POST(request: Request) {
           systemInstruction: {
             parts: [
               {
-                text: `You are the requirements-intelligence layer for an AI app builder. The user gives a rough app idea and then answers short follow-up questions. Your job is to ask the ONE next highest-value question that removes the biggest remaining product ambiguity. Never repeat something already answered. Never ask technical implementation questions. Make every question easy for a non-technical person. Keep the interview short: after 3 answered follow-up questions, return readyForSpec=true instead of another question. Before then, return readyForSpec=false. Return only valid JSON. When asking a question, use keys: readyForSpec (false), question (string), options (array of 4 or 5 short strings), helper (one short string). When enough information is collected, use keys: readyForSpec (true), question (short confirmation string), options ([]), helper (one short string). Include 'Something else' as the final option when appropriate.`,
+                text: `You are the requirements-intelligence layer for an AI app builder. Ask the ONE next highest-value question that removes the biggest remaining product ambiguity. Never repeat answered information and never ask technical implementation questions. Keep the interview to a maximum of 3 answered follow-up questions. Every response must ALSO estimate requirements completeness and update a live app blueprint from only what the user has actually told you. Do not invent unsupported details. Completeness should rise naturally as useful context is gathered, stay below 96 until the user approves the final plan, and generally move from roughly 25-40% initially toward 85-95% when ready. Return only valid JSON with keys: readyForSpec (boolean), question (string), options (array of 4-5 short strings, or [] when ready), helper (short string), completeness (number), blueprint ({ purpose: string, targetUser: string, features: string[], screens: string[], missing: string[] }). Use concise plain English. If something is not yet known, say \"Still being clarified\" or leave the relevant array empty. Include 'Something else' as the final option when appropriate.`,
               },
             ],
           },
@@ -292,29 +420,23 @@ export async function POST(request: Request) {
           ],
           generationConfig: {
             responseMimeType: "application/json",
-            temperature: 0.35,
+            temperature: 0.3,
           },
         }),
       },
     );
 
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error(`Gemini request failed: ${response.status}`);
-    }
-
     const data = (await response.json()) as {
-      candidates?: Array<{
-        content?: { parts?: Array<{ text?: string }> };
-      }>;
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
     };
-
     const text =
       data.candidates?.[0]?.content?.parts
         ?.map((part) => part.text ?? "")
         .join("") ?? "";
-    const generated = extractJson(text);
-    return NextResponse.json(generated ?? fallbackQuestion(idea, history));
+    return NextResponse.json(extractJson(text, fallback) ?? fallback);
   } catch {
-    return NextResponse.json(fallbackQuestion(idea, history));
+    return NextResponse.json(fallback);
   }
 }

@@ -16,11 +16,21 @@ export type BuildSpec = {
   agentPrompt: string;
 };
 
+export type Blueprint = {
+  purpose: string;
+  targetUser: string;
+  features: string[];
+  screens: string[];
+  missing: string[];
+};
+
 export type FollowUp = {
   question: string;
   options: string[];
   helper: string;
   readyForSpec?: boolean;
+  completeness?: number;
+  blueprint?: Blueprint;
 };
 
 export type AppSpec = {
