@@ -1,5 +1,5 @@
+import { AppPlan, BuildSpec, HistoryItem } from "@/types";
 import { NextResponse } from "next/server";
-import { AppPlan, BuildSpec, HistoryItem } from "../../../types";
 
 function fallback(plan: AppPlan): BuildSpec {
   const entities = [
@@ -18,14 +18,16 @@ function fallback(plan: AppPlan): BuildSpec {
           `As a user, I want to ${f.charAt(0).toLowerCase()}${f.slice(1)} so I can complete the app's main job.`,
       ),
     dataEntities: entities,
-    screenDetails: plan.screens.slice(0, 6).map((name) => ({
-      name,
-      purpose: `Support the ${name.toLowerCase()} part of the workflow.`,
-      actions: [
-        "View relevant information",
-        "Create or update data when needed",
-      ],
-    })),
+    screenDetails: plan.screens
+      .slice(0, 6)
+      .map((name) => ({
+        name,
+        purpose: `Support the ${name.toLowerCase()} part of the workflow.`,
+        actions: [
+          "View relevant information",
+          "Create or update data when needed",
+        ],
+      })),
     acceptanceCriteria: [
       "A user can complete the main workflow without technical knowledge.",
       "The interface clearly reflects the approved product plan.",
