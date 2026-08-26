@@ -43,6 +43,40 @@ This prototype explores a lightweight "requirements intelligence" layer that sit
 3. **Review the app plan** — the conversation is turned into a human-readable plan: purpose, target user, core features, and suggested screens.
 4. **Get the agent handoff** — once the plan is approved, the app generates a structured specification (user stories, data entities, screen requirements, acceptance criteria) plus a self-contained prompt that can be copied straight into a coding agent.
 
+## Screenshots
+
+### 1. Describe the idea
+
+![Idea entry screen](public/screenshots/Screenshot%202026-08-26%20132021.png)
+
+### 2. Start the requirements interview
+
+![First follow-up question with a live blueprint](public/screenshots/Screenshot%202026-08-26%20132045.png)
+
+### 3. Choose the most important outcome
+
+![Follow-up question options](public/screenshots/Screenshot%202026-08-26%20132101.png)
+
+### 4. Watch the blueprint take shape
+
+![Second follow-up question with updated blueprint](public/screenshots/Screenshot%202026-08-26%20132125.png)
+
+### 5. Move forward once there is enough context
+
+![Requirements readiness checkpoint](public/screenshots/Screenshot%202026-08-26%20132151.png)
+
+### 6. Review the coding-agent-ready specification
+
+![Build specification overview](public/screenshots/Screenshot%202026-08-26%20132212.png)
+
+### 7. Inspect the generated data model and screen requirements
+
+![Specification details](public/screenshots/Screenshot%202026-08-26%20132228.png)
+
+### 8. Copy the final agent handoff prompt
+
+![Definition of done and copyable agent prompt](public/screenshots/Screenshot%202026-08-26%20132242.png)
+
 ## Engineering decisions
 
 | Decision            | Reason                                             |
