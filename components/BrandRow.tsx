@@ -1,13 +1,13 @@
-export function BrandRow({ compact = false }: { compact?: boolean }) {
+import { BrandRowProps } from "@/types";
+
+export function BrandRow({ compact = false }: BrandRowProps) {
   return (
     <div className={`brand-row${compact ? " compact-brand" : ""}`}>
       <span className="brand-mark" aria-hidden="true">
         D24
       </span>
       <span className="brand-name">Deep24 Idea Lab</span>
-      {!compact ? (
-        <span className="exploration-badge">Product exploration</span>
-      ) : null}
+      <span className="exploration-badge">Product exploration</span>
     </div>
   );
 }

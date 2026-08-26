@@ -50,3 +50,7 @@ export type AppPlanScreenProps = {
   onRegenerate: () => void;
   onContinue: () => void;
 };
+
+export type BrandRowProps = {
+  compact?: boolean;
+};
