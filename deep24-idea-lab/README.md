@@ -6,6 +6,14 @@ Non-technical users often know _what_ they want to build but describe it too vag
 
 > This is a narrow, independent exploration — not an attempt to recreate Deep24.
 
+### Why this matters to Deep24
+
+Deep24's vision is to let anyone describe an app and have autonomous coding agents build it.
+
+That vision creates an interesting UX challenge: many users know the outcome they want, but don't know how to express it in a way that gives coding agents enough context.
+
+This prototype explores a lightweight "requirements intelligence" layer that sits before the build process. Instead of asking users to write better prompts, it helps them discover and specify the product they actually need.
+
 ## How it works
 
 1. **Describe your idea** — the user types a short, plain-English description of the app they want.
@@ -13,11 +21,15 @@ Non-technical users often know _what_ they want to build but describe it too vag
 3. **Review the app plan** — the conversation is turned into a human-readable plan: purpose, target user, core features, and suggested screens.
 4. **Get the agent handoff** — once the plan is approved, the app generates a structured specification (user stories, data entities, screen requirements, acceptance criteria) plus a self-contained prompt that can be copied straight into a coding agent.
 
-## Tech stack
+## Engineering decisions
 
-- **[Next.js](https://nextjs.org)** (App Router) + **TypeScript** — UI and API routes
-- **React 19**
-- **[Gemini API](https://ai.google.dev)** — powers the follow-up questions, app plan, and build spec generation, with rule-based fallbacks if the API is unavailable
+| Decision            | Reason                                             |
+| ------------------- | -------------------------------------------------- |
+| Next.js App Router  | Fast server/client orchestration for AI workflows. |
+| TypeScript          | Safer structured outputs from Gemini.              |
+| Gemini API          | Dynamic conversational requirements gathering.     |
+| Vercel              | Instant deployment and shareable prototype.        |
+| Rule-based fallback | The demo still works if AI is unavailable.         |
 
 ## Project structure
 
@@ -76,6 +88,14 @@ npm run lint    # lint the project
 - If `GEMINI_API_KEY` is missing or the request fails, each API route falls back to a rule-based response so the demo flow still works end-to-end.
 - The interview logic is intentionally kept short (max 3 questions) to keep the flow fast for a demo.
 
+### Future Experiments
+
+- Multi-turn conversations with memory beyond 3 questions.
+- Generate wireframes alongside specifications.
+- Export directly to Claude Code, Codex or Cursor.
+- Save project histories and iterate on previous app ideas.
+- Confidence scoring for incomplete specifications.
+
 ## 60-second demo script
 
 **0–8 sec**
@@ -108,3 +128,9 @@ Show the coding-agent specification and Copy Agent Prompt button.
 - Show the AI-generated questions changing based on your answers.
 - Do not spend time explaining Gemini or implementation details unless asked.
 - Finish on the coding-agent handoff screen.
+
+## About
+
+Built independently by **Jubril Oyebamiji** as a product exploration inspired by Deep24.
+
+This project is unaffiliated with Deep24 and exists solely as a proof-of-work experiment.
