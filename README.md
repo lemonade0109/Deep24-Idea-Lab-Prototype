@@ -1,10 +1,32 @@
 # Deep24 Idea Lab
 
-A small product exploration inspired by Deep24's idea-to-app workflow.
+**A proof-of-work product exploration for Deep24.**
 
-Non-technical users often know _what_ they want to build but describe it too vaguely for a coding agent to act on. This prototype adds a lightweight requirements-intelligence layer in front of that gap: it interviews the user with a few context-aware questions, turns the answers into a plain-English app plan, and then produces a structured, coding-agent-ready specification.
+Deep24 Idea Lab explores a narrow product question: if a user can describe an app in one sentence and an AI coding agent can build it, what happens when that sentence is too vague to build well?
 
-> This is a narrow, independent exploration — not an attempt to recreate Deep24.
+The prototype adds a lightweight **requirements-intelligence layer** between the user's rough idea and the coding agent.
+
+## Problem
+
+Non-technical users describe outcomes, not software requirements.
+
+> “I want an app to manage my business.”
+
+A coding agent can guess the missing details, but every guess increases the chance of building the wrong product.
+
+## Proposed solution
+
+Idea Lab asks a maximum of three context-aware, non-technical questions. It then converts the conversation into:
+
+1. A plain-English app plan the user can review.
+2. A structured build specification.
+3. A self-contained implementation prompt ready for a coding agent.
+
+The questions are generated dynamically from the user's idea and previous answers. They are not a fixed questionnaire.
+
+## Why I built it
+
+I built this as a focused proof of work around Deep24's idea-to-app direction. Rather than recreating the core product, I wanted to explore one small UX and engineering problem that naturally appears when non-technical intent meets autonomous coding agents.
 
 ### Why this matters to Deep24
 
@@ -87,6 +109,23 @@ npm run lint    # lint the project
 
 - If `GEMINI_API_KEY` is missing or the request fails, each API route falls back to a rule-based response so the demo flow still works end-to-end.
 - The interview logic is intentionally kept short (max 3 questions) to keep the flow fast for a demo.
+
+## Scope decisions
+
+This is intentionally not a full app builder. It focuses on one hypothesis:
+
+> Better requirement clarification can improve the handoff from a non-technical user's intent to an autonomous coding agent.
+
+Not included:
+
+- Authentication
+- Persistent project history
+- Actual code generation
+- Agent execution
+- Billing
+- Collaboration
+
+Those features would distract from the hypothesis being tested.
 
 ### Future Experiments
 
