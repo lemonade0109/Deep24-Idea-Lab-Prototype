@@ -1,16 +1,7 @@
 "use client";
 
-import { AppSpec } from "@/types";
+import type { AppPlanScreenProps } from "@/types";
 import { BrandRow } from "./BrandRow";
-
-type AppPlanScreenProps = {
-  spec: AppSpec;
-  isLoading: boolean;
-  error: string;
-  onBack: () => void;
-  onRegenerate: () => void;
-  onContinue: () => void;
-};
 
 export function AppPlanScreen({
   spec,
@@ -28,7 +19,10 @@ export function AppPlanScreen({
           ← Back to answers
         </button>
         <div className="spec-heading">
-          <p className="eyebrow">HERE'S WHAT I THINK YOU NEED</p>
+          <div className="completion-pill">
+            Requirements ready <strong>100%</strong>
+          </div>
+          <p className="eyebrow">HERE&apos;S WHAT I THINK YOU NEED</p>
           <h1 id="spec-title" className="spec-name">
             {spec.name}
           </h1>
@@ -87,8 +81,7 @@ export function AppPlanScreen({
           </button>
         </div>
         <p className="next-screen-note centered-note">
-          Approve this plan to generate a structured handoff for a coding
-          agent.
+          Approve this plan to generate a structured handoff for a coding agent.
         </p>
         {error ? (
           <p className="error-message" role="alert">

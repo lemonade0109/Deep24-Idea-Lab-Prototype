@@ -1,16 +1,16 @@
 "use client";
 
 import React from "react";
-import { AppSpec, BuildSpec, FollowUp, HistoryItem } from "@/types";
 import {
   fetchAppSpec,
   fetchBuildSpec,
   fetchFollowUp,
 } from "@/lib/actions/ideaActions";
-import { IdeaFormScreen } from "@/components/IdeaFormScreen";
-import { QuestionScreen } from "@/components/QuestionScreen";
 import { AppPlanScreen } from "@/components/AppPlanScreen";
 import { BuildSpecScreen } from "@/components/BuildSpecScreen";
+import { IdeaFormScreen } from "@/components/IdeaFormScreen";
+import { QuestionScreen } from "@/components/QuestionScreen";
+import type { AppSpec, BuildSpec, FollowUp, HistoryItem } from "@/types";
 
 export default function Home() {
   const [idea, setIdea] = React.useState("");
@@ -36,10 +36,8 @@ export default function Home() {
     setIsLoading(true);
     setSubmittedIdea(trimmedIdea);
     setHistory([]);
-
     try {
-      const data = await fetchFollowUp(trimmedIdea, []);
-      setFollowUp(data);
+      setFollowUp(await fetchFollowUp(trimmedIdea, []));
     } catch {
       setError("We couldn't understand that idea just yet. Please try again.");
     } finally {
@@ -58,11 +56,9 @@ export default function Home() {
     const nextHistory = [...history, { question: followUp.question, answer }];
     setError("");
     setIsLoading(true);
-
     try {
-      const data = await fetchFollowUp(submittedIdea, nextHistory);
+      setFollowUp(await fetchFollowUp(submittedIdea, nextHistory));
       setHistory(nextHistory);
-      setFollowUp(data);
       setSelectedOption("");
       setCustomAnswer("");
     } catch {
@@ -77,8 +73,7 @@ export default function Home() {
     setError("");
     setIsLoading(true);
     try {
-      const data = await fetchAppSpec(submittedIdea, history);
-      setSpec(data);
+      setSpec(await fetchAppSpec(submittedIdea, history));
     } catch {
       setError("We couldn't create your app plan just yet. Please try again.");
     } finally {
@@ -86,13 +81,12 @@ export default function Home() {
     }
   }
 
-  async function createBuildSpecHandler() {
+  async function createBuildSpec() {
     if (!spec || isLoading) return;
     setError("");
     setIsLoading(true);
     try {
-      const data = await fetchBuildSpec(submittedIdea, history, spec);
-      setBuildSpec(data);
+      setBuildSpec(await fetchBuildSpec(submittedIdea, history, spec));
     } catch {
       setError(
         "We couldn't create the build specification just yet. Please try again.",
@@ -145,13 +139,12 @@ export default function Home() {
         error={error}
         copyStatus={copyStatus}
         onBack={() => setBuildSpec(null)}
-        onRegenerate={createBuildSpecHandler}
+        onRegenerate={createBuildSpec}
         onCopyAgentPrompt={copyAgentPrompt}
         onStartOver={resetPrototype}
       />
     );
   }
-
   if (spec) {
     return (
       <AppPlanScreen
@@ -160,11 +153,10 @@ export default function Home() {
         error={error}
         onBack={() => setSpec(null)}
         onRegenerate={createAppPlan}
-        onContinue={createBuildSpecHandler}
+        onContinue={createBuildSpec}
       />
     );
   }
-
   if (followUp) {
     return (
       <QuestionScreen
@@ -186,7 +178,6 @@ export default function Home() {
       />
     );
   }
-
   return (
     <IdeaFormScreen
       idea={idea}

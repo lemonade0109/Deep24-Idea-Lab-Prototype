@@ -41,3 +41,12 @@ export type AppSpec = {
   features: string[];
   screens: string[];
 };
+
+export type AppPlanScreenProps = {
+  spec: AppSpec;
+  isLoading: boolean;
+  error: string;
+  onBack: () => void;
+  onRegenerate: () => void;
+  onContinue: () => void;
+};
