@@ -76,3 +76,18 @@ export type IdeaFormScreenProps = {
   onIdeaChange: (idea: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
+
+export type QuestionScreenProps = {
+  followUp: FollowUp;
+  submittedIdea: string;
+  history: HistoryItem[];
+  selectedOption: string;
+  customAnswer: string;
+  isLoading: boolean;
+  error: string;
+  onGoBack: () => void;
+  onSelectOption: (option: string) => void;
+  onCustomAnswerChange: (value: string) => void;
+  onAnswer: () => void;
+  onCreateAppPlan: () => void;
+};
