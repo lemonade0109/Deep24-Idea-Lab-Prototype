@@ -1,15 +1,8 @@
 "use client";
 
-import { EXAMPLE_IDEAS, formatExampleLabel } from "@/lib/helpers/ideaExamples";
 import { BrandRow } from "./BrandRow";
-
-type IdeaFormScreenProps = {
-  idea: string;
-  isLoading: boolean;
-  error: string;
-  onIdeaChange: (value: string) => void;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-};
+import { EXAMPLE_IDEAS, formatExampleLabel } from "@/lib/helpers/ideaExamples";
+import type { IdeaFormScreenProps } from "@/types";
 
 export function IdeaFormScreen({
   idea,
@@ -22,7 +15,6 @@ export function IdeaFormScreen({
     <main className="page-shell">
       <section className="hero" aria-labelledby="page-title">
         <BrandRow />
-
         <div className="intro-copy">
           <p className="eyebrow">IDEA → BUILD SPEC</p>
           <h1 id="page-title">What do you want to build?</h1>
@@ -43,12 +35,10 @@ export function IdeaFormScreen({
             placeholder="I want an app that helps me manage my watch business..."
             maxLength={500}
           />
-
           <div className="form-meta">
             <span>Describe the outcome, not the tech.</span>
             <span>{idea.length}/500</span>
           </div>
-
           <div className="examples-block">
             <p>Try an example</p>
             <div className="example-list">
@@ -64,7 +54,6 @@ export function IdeaFormScreen({
               ))}
             </div>
           </div>
-
           <button
             className="continue-button"
             type="submit"
@@ -72,7 +61,6 @@ export function IdeaFormScreen({
           >
             {isLoading ? "Understanding your idea..." : "Continue →"}
           </button>
-
           {idea.trim().length > 0 && idea.trim().length < 8 ? (
             <p className="hint-message">
               Add a little more detail so I can ask a useful question.
@@ -85,7 +73,7 @@ export function IdeaFormScreen({
           ) : null}
         </form>
         <p className="prototype-footer">
-          Independent product exploration inspired by Deep24&apos;s idea-to-app
+          Independent product exploration inspired by Deep24’s idea-to-app
           workflow.
         </p>
       </section>

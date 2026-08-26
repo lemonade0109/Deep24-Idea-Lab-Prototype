@@ -1,3 +1,5 @@
+import { FormEvent } from "react";
+
 export type HistoryItem = { question: string; answer: string };
 export type AppPlan = {
   name: string;
@@ -65,4 +67,12 @@ export type BuildSpecScreenProps = {
   onRegenerate: () => void;
   onCopyAgentPrompt: () => void;
   onStartOver: () => void;
+};
+
+export type IdeaFormScreenProps = {
+  idea: string;
+  isLoading: boolean;
+  error: string;
+  onIdeaChange: (idea: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
