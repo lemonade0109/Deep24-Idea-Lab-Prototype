@@ -1,5 +1,5 @@
+import { HistoryItem, AppSpec } from "@/types";
 import { NextResponse } from "next/server";
-import { HistoryItem, AppSpec } from "../../../types";
 
 function fallbackSpec(idea: string, history: HistoryItem[]): AppSpec {
   const text =
